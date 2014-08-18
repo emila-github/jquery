@@ -165,6 +165,20 @@
         var noticeServer = function(eventAndAjaxCache) {
             console.log('noticeServer', eventAndAjaxCache, eventAndAjaxCache.length);
             var __eventAndAjaxCache = eventAndAjaxCache;
+            //过滤没有请求的事件缓存
+            for(var i = 0, len = __eventAndAjaxCache.length; i < len; i++) {
+                var _item = __eventAndAjaxCache[i],
+                    _ajaxCache =  _item.ajaxCache;
+                if(!_ajaxCache.length) {
+                    __eventAndAjaxCache.splice(i, 1);
+                    len -= 1;
+                    i--;
+                }
+            }
+            if(!__eventAndAjaxCache.length) {
+               return;
+            }
+            //拼接需要提交给服务器的参数
             var _params = {method: _methodNotice};
             for(var i = 0, len = __eventAndAjaxCache.length; i < len; i++) {
                 var _item = __eventAndAjaxCache[i];
