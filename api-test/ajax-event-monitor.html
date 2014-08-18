@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>请求事件交互监控</title>
+</head>
+<body>
+
+    <a href="javascript://" id="getCurrentUserInfoBtn">发出Ajax请求(1)</a>
+    <a href="javascript://" id="getCurrentUserInfoBtn2">发出Ajax请求(2)</a>
+    <a href="javascript://" class="getCurrentUserInfoBtn3">发出Ajax请求(3)</a>
+	<script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+
+    (function(window, $) {
+        /**
+         监控点击对象后的异步请求
+         一次点击行为的多个请求算一次交换事件
+         如果某个异步请求中的成功回调 用setTimeout 发出请求，该请求将不被捕获
+        **/
+        var _url = 'http://local.emila-github.17173.com/themes/ue-action/interface.php',  //异步请求的服务器地址
+            /**
+             * 通知服务器的接口方法的标识
+             * @property _methodNotice
+             * @type {String}
+             */
+            _methodNotice = 'noticeServer/noticeServer',
+            /**
+             * 事件异步请求缓存数组
+             * mousedown 时初始化事件记录，生产标记了id的空对象
+             * click 时记录点击对象的相关属性，并保存到 eventCache中
+             * ajaxSend 的时候记录一次click的所有异步请求到 ajaxCache中
+             * ajaxStop 的时候通知服务端，并清空此时的 _eventAndAjaxCache 缓存
+             *
+             * @property _eventAndAjaxCache
+             * @type {Array}
+             * @private
+             * @example
+             *  // 以下是一个缓存示例:
+             *  {
+             *      id:  1408169894261, //  mousedown 时间戳
+             *      //记录click事件
+             *      eventCache: [
+             *          {type: 'click', timeStamp: 1408151724469, target: 'a#getCurrentUserInfoBtn'}
+             *      ],
+             *      //记录ajax
+             *      ajaxCache: [
+             *          {type: 'ajaxSend', timeStamp: 1408151724469, method: 'statUser/getCurrentUserInfo', datas:'name=Dan&method=statUser/FgetCurrentUserInfo&system=-1'},
+             *          {type: 'ajaxSend', timeStamp: 1408151724469, method: 'site/getElastiMessage', datas:'name=Dan&method=site/getElastiMessage'}
+             *      ]
+             *  }
+             */
+            _eventAndAjaxCache = [];
+
+        /**
+         * ajax 代理
+         * @event ajaxDelegate
+         * @param  {Function}   fn 要执行的其他事件
+         */
+        var ajaxDelegate = function(fn) {
+            //代理jq 的 $.ajax
+            //修改默认的$.ajax, 为其添加自己的方法
+            var _ajax = $.ajax;
+            $.ajax = function(url, options) {
+                //console.log('todo new ajax');
+                _ajax(url, options);
+            };
+        };
+
+        /**
+         * event监控
+         * @event eventMonitor
+         */
+        var eventMonitor = function() {
+            var tempTimeStamp = ''; //当前操作唯一标识，  mousedown时初始化。
+            $(document).on('mousedown', function(e) {
+                // console.log('mousedown event: ', e);
+                tempTimeStamp =  e.timeStamp; //生成事件唯一标识
+                //为当前异步请求注册唯一标识
+                $.ajaxSetup({
+                    data: {'__ueTimeStamp': tempTimeStamp}
+                });
+                //为异步请求生成暂存对象
+                _eventAndAjaxCache.push({id: tempTimeStamp, eventCache: [], ajaxCache: []});
+            });
+
+            //绑定document onclick事件
+            $(document).on('click', function(e) {
+                // console.log('click event: ', e);
+                // 根据唯一标识 存储 click 的事件及对象到暂存对象中
+                for(var i = 0, len = _eventAndAjaxCache.length; i < len; i++) {
+                    var _item = _eventAndAjaxCache[i],
+                        _id = _item['id'];
+                    if(tempTimeStamp == _id) {
+                        _item.eventCache.push({type: e.type, timeStamp: e.timeStamp/**, target: e.target**/});
+                    }
+                }
+            });
+        };
+
+        /**
+         * ajax监控
+         * @event ajaxMonitor
+         */
+        var ajaxMonitor = function() {
+            $(document).ajaxStart(function(e, type, o) {
+                console.log('ajaxStart============['+ e.timeStamp +']', e, type, o);
+            }).ajaxSend(function(e, type, o) {
+                //在发送请求时根据唯一标识 “__ueTimeStamp” 储存一次操作的所有异步请求事件
+                console.log( 'ajaxSend', e, type, o );
+                var _ajaxDatas = decodeURIComponent(o.data), // "__temp=1408178444471&__ueTimeStamp=1408178452363&method=site%2FgetElastiMessage"
+                    id = getData(_ajaxDatas, '__ueTimeStamp'),
+                    method = getData(_ajaxDatas, 'method');
+
+                if(!id || method == _methodNotice) {
+                    return;
+                }
+                for(var i = 0, len = _eventAndAjaxCache.length; i < len; i++) {
+                    var _item = _eventAndAjaxCache[i],
+                        _id = _item['id'],
+                        _ajaxCache = _item['ajaxCache'];
+                     if(id == _id) {
+                         _item.ajaxCache.push({type: e.type, timeStamp: e.timeStamp, method: method, datas: _ajaxDatas});
+                     }
+                }
+            }).ajaxError(function(e, type) {
+                //console.log( 'ajaxError', e, type );
+            }).ajaxComplete(function(e, type) {
+                //console.log( 'ajaxComplete', e, type );
+            }).ajaxStop(function(e, type) {
+                console.log( 'ajaxStop', e, type );
+                //如果事件缓存中有事件记录则通知服务端相关异步请求情况，并清空缓存，防止循环监控异步请求的“通知”事件。
+                console.log( '_eventAndAjaxCache = ', _eventAndAjaxCache );
+                if(_eventAndAjaxCache.length) {
+                    noticeServer(_eventAndAjaxCache);
+                }
+                _eventAndAjaxCache = [];
+            });
+        };
+
+        /**
+         * 获取Ajax异步请求的data参数值
+         * @method getData
+         * @param  {String} dataStr $.ajax.data 序列化后的字符串 如："name=Dan&method=statUser%2FgetCurrentUserInfo&system=-1"
+         * @param  {String} param   参数名  如dataStr中的 method
+         * @return {String}         参数值  如dataStr中的 method的值  如："statUser/FgetCurrentUserInfo"
+         */
+        var getData = function(dataStr, param) {
+            var _datas = dataStr.split('&') || [];
+            for(var i = 0, l = _datas.length; i < l; i++) {
+                var _item = _datas[i],
+                    _temp = _item.match(/^(.[^=]*)=(.*)$/);
+                if(param && _temp[1] && _temp[1] === param) {
+                    return (_temp[2] && decodeURIComponent(_temp[2])) || '';
+                }
+            }
+            return '';
+        };
+
+        /**
+         * 通知服务器有相关交互行为发生
+         * @event noticeServer
+         * @param  {Array}     eventAndAjaxCache 缓存的事件与异步请求关系数组列表， 即：_eventAndAjaxCache
+         */
+        var noticeServer = function(eventAndAjaxCache) {
+            console.log('noticeServer', eventAndAjaxCache, eventAndAjaxCache.length);
+            var __eventAndAjaxCache = eventAndAjaxCache;
+            var _params = {method: _methodNotice};
+            for(var i = 0, len = __eventAndAjaxCache.length; i < len; i++) {
+                var _item = __eventAndAjaxCache[i];
+                _params['action[' + i + ']'] = _item.id;
+                for(var j = 0, jLen = _item.eventCache.length; j < jLen; j++) {
+                    var __item =  _item.eventCache[j];
+                    _params['action[' + i + '][event][' + j +']'] = $.param(__item);
+                }
+                for(var j = 0, jLen = _item.ajaxCache.length; j < jLen; j++) {
+                    var __item =  _item.ajaxCache[j];
+                    _params['action[' + i + '][ajax][' + j +']'] = $.param(__item);
+                }
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: _url,
+                data: _params,
+                success: function(msg){
+                }
+            });
+        };
+
+
+
+
+        // init...
+        //ajaxDelegate();  //ajax 代理
+        eventMonitor();  //event监控
+        ajaxMonitor();  //ajax监控
+
+
+
+
+
+    })(this, jQuery);
+
+
+
+    // test
+    $(function($) {
+        var _url = 'http://local.emila-github.17173.com/themes/ue-action/interface.php';  //异步请求的服务器地址
+        //一个获取用户信息的ajax
+        var getCurrentUserInfo = function() {
+            $.ajax({
+                type: 'POST',
+                url: _url,
+                data: {
+                    method: 'statUser/getCurrentUserInfo',
+                    system: -1
+                },
+                success: function(msg){
+                   // setTimeout(function() {
+                   //     getElastiMessage();
+                   // }, 200);
+                   // getElastiMessage();
+                   // console.log( 'Data Saved: ' + msg );
+                }
+            });
+        };
+        //一个获取系统状态的ajax
+        var getElastiMessage = function() {
+            $.ajax({
+                type: 'POST',
+                url: _url,
+                data: {
+                    method: 'site/getElastiMessage'
+                },
+                success: function(msg){
+                   // console.log( 'Data Saved: ' + msg );
+                }
+            });
+
+        };
+
+        //一个错误的ajax
+        var getErrorAjax = function() {
+            $.ajax({
+                type: 'POST',
+                url: 'http://local.emila-github.17173.com/themes/ue-action/inter.php',
+                data: {
+                    method: 'error/error'
+                },
+                success: function(msg){
+                   // console.log( 'Data Saved: ' + msg );
+                }
+            });
+
+        };
+
+        getCurrentUserInfo();
+        getElastiMessage();
+        // setTimeout(getCurrentUserInfo, 1000);
+
+
+        $('#getCurrentUserInfoBtn').on('click', function() {
+            getCurrentUserInfo();
+
+        });
+
+        $('#getCurrentUserInfoBtn2').on('click', function() {
+            getElastiMessage();
+            getCurrentUserInfo();
+            // getErrorAjax();
+        });
+
+        $('.getCurrentUserInfoBtn3').on('click', function() {
+            getErrorAjax();
+            getCurrentUserInfo();
+            getElastiMessage();
+
+        });
+    });
+
+    </script>
+</body>
+</html>
