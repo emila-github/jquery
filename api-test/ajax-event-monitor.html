@@ -12,7 +12,18 @@
 	<script src="../dist/jquery.js"></script>
     <script type="text/javascript">
 
-    (function(window, $) {
+    (function (factory) {
+        if (typeof define === 'function' && define.amd) {
+            // AMD
+            define(['jquery'], factory);
+        } else if (typeof exports === 'object') {
+            // CommonJS
+            factory(require('jquery'));
+        } else {
+            // Browser globals
+            factory(this, jQuery);
+        }
+    }(function(window, $) {
         /**
          监控点击对象后的异步请求
          一次点击行为的多个请求算一次交换事件
@@ -104,38 +115,54 @@
          */
         var ajaxMonitor = function() {
             $(document).ajaxStart(function(e, type, o) {
-                console.log('ajaxStart============['+ e.timeStamp +']', e, type, o);
+                // console.log('ajaxStart============['+ e.timeStamp +']', e, type, o);
             }).ajaxSend(function(e, type, o) {
-                //在发送请求时根据唯一标识 “__ueTimeStamp” 储存一次操作的所有异步请求事件
-                console.log( 'ajaxSend', e, type, o );
-                var _ajaxDatas = decodeURIComponent(o.data), // "__temp=1408178444471&__ueTimeStamp=1408178452363&method=site%2FgetElastiMessage"
-                    id = getData(_ajaxDatas, '__ueTimeStamp'),
-                    method = getData(_ajaxDatas, 'method');
-
-                if(!id || method == _methodNotice) {
-                    return;
-                }
-                for(var i = 0, len = _eventAndAjaxCache.length; i < len; i++) {
-                    var _item = _eventAndAjaxCache[i],
-                        _id = _item['id'],
-                        _ajaxCache = _item['ajaxCache'];
-                     if(id == _id) {
-                         _item.ajaxCache.push({type: e.type, timeStamp: e.timeStamp, method: method, datas: _ajaxDatas});
-                     }
-                }
-            }).ajaxError(function(e, type) {
+                // console.log( 'ajaxSend', e, type, o );
+                addEventAndAjaxCache(e, type, o);
+            }).ajaxError(function(e, type, o) {
                 //console.log( 'ajaxError', e, type );
-            }).ajaxComplete(function(e, type) {
+                addEventAndAjaxCache(e, type, o);
+            }).ajaxComplete(function(e, type, o) {
                 //console.log( 'ajaxComplete', e, type );
-            }).ajaxStop(function(e, type) {
-                console.log( 'ajaxStop', e, type );
+                addEventAndAjaxCache(e, type, o);
+            }).ajaxStop(function(e, type, o) {
+                // console.log( 'ajaxStop', e, type, o );
                 //如果事件缓存中有事件记录则通知服务端相关异步请求情况，并清空缓存，防止循环监控异步请求的“通知”事件。
-                console.log( '_eventAndAjaxCache = ', _eventAndAjaxCache );
                 if(_eventAndAjaxCache.length) {
                     noticeServer(_eventAndAjaxCache);
                 }
                 _eventAndAjaxCache = [];
             });
+        };
+
+        /**
+         * 添加异步事件记录
+         * 把操作的ajax记录到对应的 _eventAndAjaxCache 中
+         * @method addEventAndAjaxCache
+         * @param  {jQuery.Event}             event   jquery的event对象
+         * @param  {Object}             state   异步请求的各个状态
+         * @param  {options}             options ajax的参数配置
+         */
+        var addEventAndAjaxCache = function(event, state, options) {
+            //在发送请求时根据唯一标识 “__ueTimeStamp” 储存一次操作的所有异步请求事件
+            var o = options,
+                e = event,
+                s = state,
+                _ajaxDatas = decodeURIComponent(o.data), // "__temp=1408178444471&__ueTimeStamp=1408178452363&method=site%2FgetElastiMessage"
+                id = getData(_ajaxDatas, '__ueTimeStamp'),
+                method = getData(_ajaxDatas, 'method');
+
+            if(!id || method == _methodNotice) {
+                return;
+            }
+            for(var i = 0, len = _eventAndAjaxCache.length; i < len; i++) {
+                var _item = _eventAndAjaxCache[i],
+                    _id = _item['id'],
+                    _ajaxCache = _item['ajaxCache'];
+                 if(id == _id) {
+                     _item.ajaxCache.push({type: e.type, timeStamp: e.timeStamp, method: method, datas: _ajaxDatas});
+                 }
+            } 
         };
 
         /**
@@ -214,7 +241,7 @@
 
 
 
-    })(this, jQuery);
+    }));
 
 
 
