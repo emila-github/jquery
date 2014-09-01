@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        //ex1:
+        function Aa() {
+
+        }
+        Aa.prototype.init = function() {
+            console.log('Aa init');
+        };
+        Aa.prototype.other1 = function() {
+            console.log('Aa other1');
+        };
+
+        var a1 = new Aa();
+        a1.init();
+        a1.other1();
+
+
+        //ex2:
+        function jQuery() {
+           return new jQuery.prototype.init();
+        }
+        jQuery.prototype.init = function() {
+            console.log('jq init');
+        };
+        jQuery.prototype.other1 = function() {
+            console.log('jq other1');
+            return this;
+        };
+        jQuery.prototype.other2 = function() {
+            console.log('jq other2');
+            return this;
+        };
+
+        jQuery.prototype.init.prototype = jQuery.prototype;
+
+
+        jQuery().other1().other2();
+    </script>
+</body>
+</html>
