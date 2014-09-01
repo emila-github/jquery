@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jQuery.parseHTML</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            var str = '<li>1</li><li>2</li><li>3</li><script>alert(4)<\/script>';  //['li','li','li']
+
+            /**
+             * parseHTML:
+             * 第二个参数 指定根节点  ownerDocument
+             * 第3个参数默认为flase, 设置为ture时 script 标签会被添加到document中
+             */
+            var arr = $.parseHTML(str, document, true);
+            console.log(arr);
+            $.each(arr, function(i) {
+                $('ul').append( arr[i] );
+            });
+        });
+    </script>
+</body>
+
+<ul></ul>
+</html>
