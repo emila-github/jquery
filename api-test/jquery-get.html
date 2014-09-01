@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jQuery.get</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            //get jq对象转原生集合
+            var lis = $('li');
+            for(var i = 0; i < lis.get().length; i++) {
+                lis.get(i).innerHTML = 'ttt' + i;
+            }
+
+
+
+        });
+    </script>
+</body>
+
+<ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+</ul>
+</html>
