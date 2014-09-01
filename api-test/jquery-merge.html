@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jQuery.merge</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(function() {
+
+            //合并数组
+            var arr = ['a', 'b'],
+                arr2 = ['c', 'd'];
+            console.log($.merge(arr, arr2)); // ["a", "b", "c", "d"]
+
+            //合并json
+            var arr3 = {
+                0 : 'a',
+                1 : 'b',
+                length :2    //特殊的json 有length属性
+            };
+            console.log($.merge(arr3, arr2));  // Object {0: "a", 1: "b", 2: "c", 3: "d", length: 4}
+
+            //合并json ex2:
+            var arr4 = {
+                a: 'a1',
+                b: 'b1',
+                length :2
+            };
+            console.log($.merge(arr4, arr2)); //Object {2: "c", 3: "d", a: "a1", b: "b1", length: 4}
+
+        });
+    </script>
+</body>
+
+<ul></ul>
+</html>
