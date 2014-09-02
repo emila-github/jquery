@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jQuery.holdReady() 工具方法</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        //停止ready
+
+        //正常情况下先  todos.....  后  holdReadyHelp.js loaded!
+        //为了让  holdReadyHelp.js 加载完成后 执行 todos...
+        //添加  $.holdReady(true);  并在 $.getScript 回调中添加 $.holdReady(false); 释放ready
+        $.holdReady(true);
+        $.getScript('holdReadyHelp.js', function() {
+            $.holdReady(false);
+        });
+
+        //多次hold  $.readyWait++
+        $.holdReady(true);
+        $.getScript('holdReadyHelp.js', function() {
+            $.holdReady(false);  //$.readyWait--
+        });
+
+        //ex1:
+        $(function(arg) {
+            alert('todos.....');
+        });
+
+
+
+
+    </script>
+</body>
+
+
+</html>
