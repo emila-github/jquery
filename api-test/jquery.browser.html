@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>判断浏览器DEMO</title>
+    <style>
+        table{
+            margin:0 auto;
+            border-collapse: collapse;
+            border-spacing: 0;
+            table-layout: fixed;
+            font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+        }
+        table th{
+            font-size:16px;
+            font-weight:600;
+            color:#fff;
+            background-color:#FF9090;
+        }
+        table td{
+            color:#fff;
+            font-size:16px;
+            background-color:#999;
+        }
+        table th,table td{
+            text-align:center;
+            padding:5px;
+            line-height:1.8;
+        }
+        .sel{
+            background:#060;
+        }
+        p{
+            width:70%;
+            margin:0 auto;
+            font:16px Monaco, Menlo, Consolas, "Courier New", monospace,"microsoft yahei";
+        }
+    </style>
+</head>
+<body>
+    <table width="90%" border="1" cellspacing="0" cellpadding="0" bordercolor="#ffffff">
+        <tr>
+            <th style="background-color:#999">Browser</th>
+            <th class="ie6">IE6</th>
+            <th class="ie">IE</th>
+            <th class="chrome">Chrome</th>
+            <th class="firefox">Firefox</th>
+            <th class="opera">Opera</th>
+            <th class="safari">Safari</th>
+            <th class="other">other</th>
+        </tr>
+        <tr>
+            <td>Version</td>
+            <td class="ie6">&nbsp;</td>
+            <td class="ie">&nbsp;</td>
+            <td class="chrome">&nbsp;</td>
+            <td class="firefox">&nbsp;</td>
+            <td class="opera">&nbsp;</td>
+            <td class="safari">&nbsp;</td>
+            <td class="other">&nbsp;</td>
+        </tr>
+    </table>
+    <hr>
+    <p>
+        USE:
+    </p>
+    <p>&nbsp;</p>
+    <p>
+        $.browser.ie6()
+        //true or false</p>
+    <p>$.browser.msie()
+        //true or false</p>
+    <p>$.browser.chrome()
+        //true or false</p>
+    <p>$.browser.moz()
+        //true or false</p>
+    <p>$.browser.safari()
+        //true or false</p>
+    <p>$.browser.opera()
+        //true or false</p>
+    <p>$.browser.version()
+        //a value of integer or float</p>
+    <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+    <p class="userAgent"></p>
+
+
+
+	<script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        (function (factory) {
+            if (typeof define === 'function' && define.amd) {
+                // AMD
+                define(['jquery'], factory);
+            } else if (typeof exports === 'object') {
+                // CommonJS
+                factory(require('jquery'));
+            } else {
+                // Browser globals
+                factory(this, jQuery);
+            }
+        }(function(window, $) {
+
+            // 浏览器类型
+            var _browserList = [
+                [/(17173)/ , '17173'],
+                [/(PaleMoon)/ , 'pm'],
+                [/(Fennec)/ , 'fn'],
+                [/(Flock)/ , 'fk'],
+                [/(RockMelt)/ , 'rm'],
+                [/(Navigator)/ , 'ng'],
+                [/(MyIBrow)/ , 'mb'],
+                [/(CrMo|CriOS)/ , 'cm'],
+                [/(QQBrowser|TencentTraveler)/i , 'qq'],
+                [/(Maxthon)/ , 'ma'],
+                [/(360SE|360EE|360browser)/i , '36'],
+                [/(Theworld)/ , 'th'],
+                [/( SE )/ , 'se'],
+                [/(LBBROWSER)/ , 'lb'],
+                [/(Lynx)/ , 'ln'],
+                [/(CoolNovo)/ , 'cl'],
+                [/(TaoBrowser)/ , 'tb'],
+                [/(Arora)/ , 'aa'],
+                [/(Epiphany)/ , 'ep'],
+                [/(Links)/ , 'ls'],
+                [/(Camino)/ , 'cmn'],
+                [/(Konqueror)/ , 'kq'],
+                [/(Avant Browser)/ , 'ab'],
+                [/(ELinks)/ , 'el'],
+                [/(Minimo)/ , 'mnm'],
+                [/baiduie8|baidubrowser|FlyFlow|BIDUBrowser/i , 'bd'],
+                [/(UCBrowser|UC Browser|UCWEB|UC AppleWebKit)/ , 'uc'],
+                [/(OneBrowser)/ , 'ob'],
+                [/(iBrowser\/Mini)/ , 'im'],
+                [/(Nokia|BrowserNG|NokiaBrowser|Series60|S40OviBrowser)/ , 'nk'],
+                [/(BB10|PlayBook|Black[bB]erry)/ , 'bb'],
+                [/(OmniWeb)/ , 'ow'],
+                [/(Blazer)/ , 'bz'],
+                [/Qt/ , 'qt'],
+                [/(NetFront)/ , 'nf'],
+                [/(Silk)/ , 'sk'],
+                [/(Teleca)/ , 'tc'],
+                [/(Froyo)/ , 'fy'],
+                [/(MSIE 9)/ , 'ie9'],
+                [/(MSIE 8)/ , 'ie8'],
+                [/(MSIE 7)/ , 'ie7'],
+                [/(MSIE 6)/ , 'ie6'],
+                [/(MSIE 10)/ , 'ie10'],
+                [/(Opera Mini)/ , 'opm'],
+                [/(Opera|Oupeng|opr)/i , 'op'],
+                [/(iPhone|iPad|iPod)/ , 'ms'],
+                [/(Firefox)/ , 'ff'],
+                [/(Chrome)/ , 'ch'],
+                [/(Safari)/ , 'sa'],
+                [/(MSIE)/ , 'ie'],
+                [/(Android)/ , 'ad']
+            ];
+
+
+
+            $.extend({
+                browser:function(){
+                    var ua=window.navigator.userAgent.toString(),
+                        ret='';
+                    if(/Firefox/g.test(ua)){
+                        ua=ua.split(' ');
+                        ret='Firefox|'+ua[ua.length-1].split('/')[1];
+                    }else if(/MSIE/g.test(ua)){
+                        ua=ua.split(';');
+                        ret='IE|'+ua[1].split(' ')[2];
+                    }else if(/(Opera|opr)/ig.test(ua)){
+                        ua=ua.split(' ');
+                        ret='Opera|'+ua[ua.length-1].split('/')[1];
+                    }else if(/Chrome/g.test(ua)){
+                        ua=ua.split(' ');
+                        var _info = ua[ua.length-2];
+                        for(var i = 0, l =ua.length; i < l; i++) {
+                            var _item = ua[i];
+                            if ( _item.match(/Chrome\/(\d+)/i) ) {
+                                _info = _item;
+                                break;
+                            }
+                        }
+                        ret='Chrome|'+_info.split('/')[1];
+                    }else if(/^apple\s+/i.test(navigator.vendor)){
+                        ua=ua.split(' ');
+                        ret='Safari|'+ua[ua.length-2].split('/')[1];
+                    }else{
+                        ret='unknown';
+                    }
+                    return ret.split('|');
+                }
+            });
+            $.extend($.browser,{
+                ie6:function(){
+                    if(typeof document.body.style.maxHeight === 'undefined'){
+                        return true;
+                    }
+                    return false;
+                },
+                msie:function(){
+                    return $.browser()[0] =='IE';
+                },
+                moz:function(){
+                    return $.browser()[0] =='Firefox';
+                },
+                chrome:function(){
+                    return $.browser()[0] =='Chrome';
+                },
+                opera:function(){
+                    return $.browser()[0] =='Opera';
+                },
+                safari:function(){
+                    return $.browser()[0] =='Safari';
+                },
+                appName:function(){
+                    return $.browser()[0];
+                },
+                version:function(isAll){
+                    //  防止360se、Sougou Browser等壳浏览器修改UA导致判断不准确
+                    if($.browser.msie){
+                        var v = 3,
+                                div = document.createElement('div'),
+                                all = div.getElementsByTagName('i');
+
+                        while (div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->', all[0]);
+                        var ieversion = v > 4 ? v : false;
+                        if(ieversion){
+                            return ieversion;
+                        }
+                    }
+                    var v_num = $.browser()[1] ? $.browser()[1].split('.') : [],
+                        v = 0;
+                    if(isAll) {
+                        return v_num.join('.') || v;
+                    }
+                    if(v_num[1]){
+                        v = v_num[0] + '.' +v_num[1];
+                    }
+                    else {
+                        v = v_num[0] + '.0';
+                    }
+
+                    return parseInt(v);
+                },
+                //获取浏览器外壳
+                shell: function(BrowserList) {
+                    var _userAgent = navigator.userAgent.toString(),
+                        _browsers = BrowserList || _browserList;
+                    for(var i in _browsers){
+                        var _match = _userAgent.match(_browsers[i][0]);
+                        if(_match && _browsers[i][1]) {
+                            return _browsers[i][1];
+                        }
+                    }
+                    return 0;
+                }
+            });
+        }));
+    </script>
+    <script type="text/javascript">
+        // test
+        $(function(){
+            var v = $.browser.version();
+            if($.browser.ie6()){
+                $('.ie6').addClass('sel');
+                $('td.ie6').html('&radic;&nbsp;'+v);
+            }
+            if($.browser.msie()){
+                $('.ie').addClass('sel');
+                $('td.ie').html('&radic;&nbsp;'+v);
+            }
+            if($.browser.chrome()){
+                $('.chrome').addClass('sel');
+                $('td.chrome').html('&radic;&nbsp;'+v);
+            }
+            if($.browser.moz()){
+                $('.firefox').addClass('sel');
+                $('td.firefox').html('&radic;&nbsp;'+v);
+            }
+            if($.browser.opera()){
+                $('.opera').addClass('sel');
+                $('td.opera').html('&radic;&nbsp;'+v);
+            }
+            if($.browser.safari()){
+                $('.safari').addClass('sel');
+                $('td.safari').html('&radic;&nbsp;'+v);
+            }
+            var _shell = $.browser.shell();
+            if($.browser.appName() && _shell){
+                $('.other').addClass('sel');
+                $('th.other').append('<br/>( ' + _shell + ' )');
+                $('td.other').html('&radic;&nbsp;'+$.browser.version(true));
+            }
+
+            $('.userAgent').html('navigator.userAgent = ' + navigator.userAgent.toString() + '<br/>navigator.vendor = ' + navigator.vendor + '<br/>shell = ' + _shell);
+
+        });
+
+    </script>
+</body>
+</html>
