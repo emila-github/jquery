@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jquery.swap css交互（内部）</title>
+</head>
+<body>
+    <div id="div1" style="width: 100px; height: 100px; background: red; display: none;">div1</div>
+    <div id="div2" style="width: 100px; height: 100px; background: red; display: block; visibility: hidden; position: absolute;">div1</div>
+
+
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+
+        //$.swap 就是用以下原理实现  先保存现有的样式 在为元素设置 ：display: block; visibility: hidden; position: absolute;
+        // 获取宽度后 还原元素原有样式
+        console.log('jq width：', $('#div1').width());   // 100
+        console.log('js width：', $('#div1').get(0).offsetWidth); // 0 // display: none; 获取不到  值为 0
+        console.log('js width：', $('#div2').get(0).offsetWidth); // 100 // display: block; visibility: hidden; position: absolute; 获取到  值为 100
+
+
+
+    </script>
+</body>
+</html>
