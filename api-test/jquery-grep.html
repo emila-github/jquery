@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jquery.grep 过滤数组</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        var arr=  [1, 2, 3, 4];
+        console.log('过滤前的arr：', arr);
+        //$.grep arr:要处理的数组  fn:返回true时获取该数组值  第3个参数为true时 对fn取反
+        arr = $.grep(arr, function(n, i) {
+           return n > 2;
+        }, true);
+        console.log('过滤后的arr：', arr);
+    </script>
+</body>
+</html>
