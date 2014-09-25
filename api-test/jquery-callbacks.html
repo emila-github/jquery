@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>$.Callbacks 注册函数方法</title>
+</head>
+<body>
+    <div id="div1" style="width: 100px; height: 100px; background: red; display: none;">div1</div>
+    <div id="div2" style="width: 100px; height: 100px; background: red; display: block; visibility: hidden; position: absolute;">div1</div>
+
+
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+
+        function a() {
+            alert(1);
+        }
+        function b() {
+            alert(2);
+        }
+
+//        once:	只触发一次
+//        memory: 执行所有的绑定  和add是否在fire之前无关
+//        unique: 去重，防止添加多个相关函数
+//        stopOnFalse: 函数返回false时不继续执行
+        //var cb = $.Callbacks('once');  //cb只触发一次
+        //var cb = $.Callbacks('memory');
+        //var cb = $.Callbacks('once memory'); //多个配置用空格分隔
+
+        var cb = $.Callbacks();
+        cb.add(a); //添加方法a
+        cb.add(b);
+        //还可以用以下方法添加
+//        cb.add(a,b);
+//        cb.add([a,b]);
+
+        cb.fire(); //执行cb
+
+
+        cb.remove(a);
+        cb.fire();
+
+        //绑定事件  和上面类似
+        document.addEventListener('click', a, false);
+        document.addEventListener('click', b, false);
+
+
+    </script>
+</body>
+</html>
