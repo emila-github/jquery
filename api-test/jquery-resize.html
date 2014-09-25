@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>动态改变height</title>
+</head>
+<body>
+    <div id="div1">
+        div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>
+        div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>div1<br/>
+        div1<br/>div1<br/>div1<br/>div1
+    </div>
+
+
+
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        $(window).bind("resize",adjustS6Height);
+
+        function adjustS6Height(){
+            var h = $(document).height();
+            if (h<670) {
+                $("#div1").css("overflow-y","scroll").css("height",(h-93)+"px");
+            }else {
+                $("#div1").css("overflow-y","hidden").css("height","575px");
+            }
+        }
+
+        setTimeout(function(){
+            adjustS6Height();
+        },1500);
+
+    </script>
+</body>
+</html>
