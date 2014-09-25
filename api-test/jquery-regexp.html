@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jq 中的正则</title>
+</head>
+<body>
+    <div id="div1" style="width: 100px; height: 100px; background: red; display: none;">div1</div>
+    <div id="div2" style="width: 100px; height: 100px; background: red; display: block; visibility: hidden; position: absolute;">div1</div>
+
+
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+
+        var rnotwhite = (/\S+/g);   // 匹配一个或多个非空白字符
+        console.log('rnotwhite (用空格分隔字符串)= ', 'once memory unique stopOnFalse'.match( rnotwhite ) );
+
+
+    </script>
+</body>
+</html>
