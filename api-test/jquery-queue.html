@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jquery.queue 入队出队</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        //queue处理的事函数方法  不能是其他的字符或数字等其他类型
+        var a = function() {
+            alert('a');
+        };
+        var b = function() {
+            alert('b');
+        };
+        function c(){
+            alert('c');
+        };
+
+        $.queue(document, 'q1', a);
+        $.queue(document, 'q1', b);
+        $.queue(document, 'q1', c);
+        $.queue(document, 'q1', [a, c]); //可以传数组  传数组时会覆盖前面的入队
+        console.log( $.queue(document, 'q1') );
+        $.dequeue(document, 'q1');   // 自动调用函数 a
+        $.dequeue(document, 'q1');   // c
+
+    </script>
+</body>
+</html>
