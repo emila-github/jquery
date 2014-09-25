@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>$.Callbacks 注册函数方法</title>
+</head>
+<body>
+
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+
+        var flag = true;
+        function a() {
+            alert(1);
+            if(flag) {   //防止无限循环
+                cb.fire();
+                flag = false;
+            }
+
+        }
+        function b() {
+            alert(2);
+        }
+
+
+        var cb = $.Callbacks();
+        cb.add(a); //添加方法a
+        cb.add(b);
+
+        cb.fire(); //执行cb
+
+
+
+    </script>
+</body>
+</html>
