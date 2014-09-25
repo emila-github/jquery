@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>jquery.map 将一组元素转换成其他数组</title>
+</head>
+<body>
+    <script src="../dist/jquery.js"></script>
+    <script type="text/javascript">
+        var arr=  [1, 2, 3, 4];
+        console.log('转换前的arr：', arr);
+        //$.map arr:要处理的数组  fn:返回处理后获取数组值
+        arr = $.map(arr, function(n, i) {
+           return n + 2;
+        }, true);
+        console.log('转换后的arr：', arr);
+    </script>
+</body>
+</html>
